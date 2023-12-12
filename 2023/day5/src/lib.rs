@@ -78,7 +78,11 @@ impl RangeMap {
             let end_diff = self.src.end.saturating_sub(input.end);
             let start = self.dest.start + start_diff;
             let end = self.dest.end - end_diff;
-            vec![start..end]
+
+            #[allow(clippy::single_range_in_vec_init)]
+            {
+                vec![start..end]
+            }
         } else if self.src.start >= input.start && self.src.end <= input.end {
             // self within input.
             // input_start...Map[[start...end]]...input_end -> [input_start..src_start] [map(src_start)...map(src_end)] [src...input_end]
