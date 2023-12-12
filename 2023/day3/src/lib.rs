@@ -20,7 +20,7 @@ impl Display for Part {
 }
 
 fn truncated_range(start: usize, end: usize, length: usize) -> RangeInclusive<usize> {
-    start.checked_sub(1).unwrap_or(0)..=(length - 1).min(end + 1)
+    start.saturating_sub(1)..=(length - 1).min(end + 1)
 }
 
 impl Part {
@@ -141,8 +141,8 @@ impl Gear {
         let mut connected_parts = vec![];
 
         for part in parts {
-            let left_to_right = self.col.checked_sub(1).unwrap_or(0)..=(self.col + 1);
-            let top_to_bottom = self.row.checked_sub(1).unwrap_or(0)..=(self.row + 1);
+            let left_to_right = self.col.saturating_sub(1)..=(self.col + 1);
+            let top_to_bottom = self.row.saturating_sub(1)..=(self.row + 1);
 
             if left_to_right.overlaps(&(part.start..=part.end)) && top_to_bottom.contains(&part.row)
             {
@@ -197,7 +197,7 @@ impl FromStr for Engine {
                     number *= 10;
                     number += digit;
                 } else {
-                    push_part_if_valid(part_start, number, row, col.checked_sub(1).unwrap_or(0));
+                    push_part_if_valid(part_start, number, row, col.saturating_sub(1));
 
                     number = 0;
                     part_start = None;
@@ -220,12 +220,7 @@ impl Engine {
     }
 
     pub fn sum_of_gears(&self) -> u32 {
-        self.gears
-            .iter()
-            .map(|g| g.ratio(&self.parts))
-            .filter(Option::is_some)
-            .map(Option::unwrap)
-            .sum()
+        self.gears.iter().filter_map(|g| g.ratio(&self.parts)).sum()
     }
 }
 
